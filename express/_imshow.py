@@ -387,7 +387,9 @@ def imshow(
                 + "dimension of the img matrix."
             )
         traces = [
-            go.Heatmap(x=x, y=y, z=img[index_tup], coloraxis="coloraxis1", name=str(i))
+            go.Heatmap(x=x, y=y, z=img[index_tup],
+                       #coloraxis="coloraxis1",
+                       name=str(i))
             for i, index_tup in enumerate(itertools.product(*iterables))
         ]
         autorange = True if origin == "lower" else "reversed"
@@ -396,14 +398,26 @@ def imshow(
             layout["xaxis"] = dict(scaleanchor="y", constrain="domain")
             layout["yaxis"]["constrain"] = "domain"
         colorscale_validator = ColorscaleValidator("colorscale", "imshow")
-        layout["coloraxis1"] = dict(
-            colorscale=colorscale_validator.validate_coerce(
-                args["color_continuous_scale"]
-            ),
-            cmid=color_continuous_midpoint,
-            cmin=zmin,
-            cmax=zmax,
-        )
+        #layout["coloraxis1"] = dict(
+        #    colorscale=colorscale_validator.validate_coerce(
+        #        args["color_continuous_scale"]
+        #    ),
+        #    cmid=color_continuous_midpoint,
+        #    cmin=zmin,
+        #    cmax=zmax,
+        #)
+        colorscale = colorscale_validator.validate_coerce(args["color_continuous_scale"])
+        zmin = zmin or [zmin]
+        zmax = zmax or [zmax]
+        layout.update({
+            f'coloraxis{s}': {
+                'colorscale': colorscale,
+                'cmid': color_continuous_midpoint,
+                'cmin': zmin[i],
+                'cmax': zmax[i],
+            }
+            for i, s in enumerate(['', *range(2, len(zmin)+1)])
+        })
         if labels["color"]:
             layout["coloraxis1"]["colorbar"] = dict(title_text=labels["color"])
 
