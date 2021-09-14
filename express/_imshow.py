@@ -406,18 +406,25 @@ def imshow(
         #    cmin=zmin,
         #    cmax=zmax,
         #)
-        colorscale = colorscale_validator.validate_coerce(args["color_continuous_scale"])
+        if not isinstance(args["color_continuous_scale"][0], str):
+            colorscales = [colorscale_validator.validate_coerce(c) for c in args["color_continuous_scale"]]
+        else:
+            colorscales = [colorscale_validator.validate_coerce(args["color_continuous_scale"])]
         zmin = zmin or [zmin]
         zmax = zmax or [zmax]
+        facet_col_spacing = facet_col_spacing or 0.02  # it can't be None because we will use it below
+        facet_row_spacing = facet_row_spacing or 0.07
+        #from ipdb import set_trace as breakpoint; breakpoint()
         layout.update({
             f'coloraxis{s}': {
-                'colorscale': colorscale,
+                'colorscale': colorscales[i],
                 'cmid': color_continuous_midpoint,
                 'cmin': zmin[i],
                 'cmax': zmax[i],
-                'colorbar_x': (i+1) * (1+facet_col_spacing) / len(zmin) - facet_col_spacing,
+                'colorbar_x': (i%ncols+1) * (1+facet_col_spacing) / ncols - facet_col_spacing,
+                'colorbar_y': (nrows-1-i//ncols+0.5) * (1+facet_row_spacing) / nrows - facet_row_spacing/2,
                 # See onenote for explanation
-                'colorbar_len': 0.8,
+                'colorbar_len': 1 / nrows, #0.8,
                 'colorbar_xpad': 2, # >=0, default 10
                 #'colorbar_tickangle': -45,
                 'colorbar_thickness': 5,
