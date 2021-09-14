@@ -259,17 +259,15 @@ def imshow(
     img_is_xarray = False
     # ----- Define x and y, set labels if img is an xarray -------------------
     if xarray_imported and isinstance(img, xarray.DataArray):
-        dims = list(img.dims)
         img_is_xarray = True
         if facet_col is not None:
             facet_slices = img.coords[img.dims[facet_col]].values
-            _ = dims.pop(facet_col)
             facet_label = img.dims[facet_col]
         if animation_frame is not None:
             animation_slices = img.coords[img.dims[animation_frame]].values
-            _ = dims.pop(animation_frame)
             animation_label = img.dims[animation_frame]
-        y_label, x_label = dims[0], dims[1]
+        y_label, x_label = [d for i, d in enumerate(img.dims)
+                            if i not in [facet_col, animation_frame]]
         # np.datetime64 is not handled correctly by go.Heatmap
         for ax in [x_label, y_label]:
             if np.issubdtype(img.coords[ax].dtype, np.datetime64):
