@@ -408,8 +408,17 @@ def imshow(
             colorscales = [colorscale_validator.validate_coerce(c) for c in args["color_continuous_scale"]]
         else:
             colorscales = [colorscale_validator.validate_coerce(args["color_continuous_scale"])]
-        zmin = zmin or [zmin]
-        zmax = zmax or [zmax]
+        if zmax is None:
+            # Adaptive color range
+            if facet_col is not None and animation_frame is not None:
+                zmax = [np.percentile(np.abs(facet), 99) for facet in img.transpose(1,0,2,3)]
+                zmin = [-z for z in zmax]
+            elif facet_col is not None:
+                zmax = [np.percentile(np.abs(facet), 99) for facet in img]
+                zmin = [-z for z in zmax]
+            else:
+                zmax = [None]
+                zmin = [None]
         facet_col_spacing = facet_col_spacing or 0.02  # it can't be None because we will use it below
         facet_row_spacing = facet_row_spacing or 0.07
         #from ipdb import set_trace as breakpoint; breakpoint()
