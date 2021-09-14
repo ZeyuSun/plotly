@@ -386,7 +386,7 @@ def imshow(
             )
         traces = [
             go.Heatmap(x=x, y=y, z=img[index_tup],
-                       coloraxis="coloraxis{}".format('' if i == 0 else i+1),
+                       coloraxis="coloraxis{}".format(['', *range(2, nslices_facet+1)][i%nslices_facet]),
                        name=str(i))
             for i, index_tup in enumerate(itertools.product(*iterables))
         ]
