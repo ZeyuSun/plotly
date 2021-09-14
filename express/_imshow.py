@@ -30,10 +30,11 @@ def _vectorize_zvalue(z, mode="max"):
     elif len(z) == 4:
         return z
     else:
-        raise ValueError(
-            "zmax can be a scalar, or an iterable of length 1, 3 or 4. "
-            "A value of %s was passed for zmax." % str(z)
-        )
+        #raise ValueError(
+        #    "zmax can be a scalar, or an iterable of length 1, 3 or 4. "
+        #    "A value of %s was passed for zmax." % str(z)
+        #)
+        return [[i] * 3 + [alpha] for i in z]
 
 
 def _infer_zmax_from_type(img):
@@ -458,8 +459,26 @@ def imshow(
                 img_rescaled = img
                 rescale_image = False
             elif img.ndim == 2 + slice_dimensions:  # single-channel image
-                img_rescaled = rescale_intensity(
-                    img, in_range=(zmin[0], zmax[0]), out_range=np.uint8
+                #img_rescaled = rescale_intensity(
+                #    img, in_range=(zmin[0], zmax[0]), out_range=np.uint8
+                #)
+                if animation_frame is None:
+                    facet_iterables = range(nslices_facet)
+                    facet_col_new = 0
+                else:
+                    facet_iterables = [(slice(None), i) for i in range(nslices_facet)]
+                    facet_col_new = 1
+
+                img_rescaled = np.stack(
+                    [
+                        rescale_intensity(
+                            img[s],
+                            in_range=(zmin[i], zmax[i]),
+                            out_range=np.uint8,
+                        )
+                        for i, s in enumerate(facet_iterables)
+                    ],
+                    axis=facet_col_new,
                 )
             else:
                 img_rescaled = np.stack(
