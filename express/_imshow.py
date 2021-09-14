@@ -388,7 +388,7 @@ def imshow(
             )
         traces = [
             go.Heatmap(x=x, y=y, z=img[index_tup],
-                       #coloraxis="coloraxis1",
+                       coloraxis="coloraxis{}".format('' if i == 0 else i+1),
                        name=str(i))
             for i, index_tup in enumerate(itertools.product(*iterables))
         ]
@@ -415,6 +415,12 @@ def imshow(
                 'cmid': color_continuous_midpoint,
                 'cmin': zmin[i],
                 'cmax': zmax[i],
+                'colorbar_x': (i+1) * (1+facet_col_spacing) / len(zmin) - facet_col_spacing,
+                # See onenote for explanation
+                'colorbar_len': 0.8,
+                'colorbar_xpad': 2, # >=0, default 10
+                #'colorbar_tickangle': -45,
+                'colorbar_thickness': 5,
             }
             for i, s in enumerate(['', *range(2, len(zmin)+1)])
         })
